@@ -110,7 +110,7 @@ int LearnWordProc(sentence* sentence_base,wordsline* word_base, word portTargetW
     }
 
     //队空后，完成本次学习任务
-    printf("finish！");
+    printf("finish！\n");
     //重新写入csv，更新日志csv
 
     return OK;
@@ -154,7 +154,7 @@ int wordByTurns(LinkQueue *unRemQueue,sentence* sentence_base,wordsline* word_ba
     }
 
     showWordInDetail(*tempWord,sentence_base);
-    printf("剩余单词个数：%d\n",(*unRemQueue).LengthQueue);
+    printf("剩余单词个数：%d\n\n\n",(*unRemQueue).LengthQueue);
 
     free(tempWord);
 
@@ -196,7 +196,7 @@ int showWordInDetail(word beShowedWord,sentence* sentence_base)
 {//展示单词详细信息
     printf("词语详细信息:\n");
     printf("%s\n词意：%s\n词性：%s\n",beShowedWord.word_info,beShowedWord.word_meaning,num_to_wordtype(beShowedWord.word_type));
-    printf("例句： %s\n",getSentenceByNumber(beShowedWord.word_sentences_number,sentence_base));
+    printf("例句： %s\n\n",getSentenceByNumber(beShowedWord.word_sentences_number,sentence_base));
 
     return OK;
 }
@@ -223,6 +223,7 @@ char* getSentenceByNumber(int sentenceNum,sentence* sentence_base)
             return sentence_base[vol].sentence_example;
         }
     }
+
 
     return NULL;
 }

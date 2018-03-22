@@ -62,7 +62,7 @@ void CreateWordsLine(wordsline wordsline_alpha,char alpha)
     {
         while(fgets(buf,101,fp)!=NULL)
         {
-            sscanf(buf,"%[^','],%[^','],%d,%d,%d,%d,%d",mode.word_info,mode.word_meaning,&mode.word_type,&mode.word_sentences_number,&mode.word_rem_times,&mode.word_extrachar1,
+            sscanf(buf,"%[^','],\"%[^\"]\",%d,%d,%d,%d,%d",mode.word_info,mode.word_meaning,&mode.word_type,&mode.word_sentences_number,&mode.word_rem_times,&mode.word_extrachar1,
                    &mode.word_extrachar2);
             EnWordsline(mode,wordsline_alpha);
         }
@@ -118,10 +118,11 @@ void CreateSentence_base(sentence *sentence_base,int sentencenum)//done
     else
     {
         int i=0;
-        while(fgets(buf,MAX_SENTENCE_LENGTH+1,fp)!=NULL&&i<=sentencenum)
+        while(fgets(buf,MAX_SENTENCE_LENGTH+1,fp)!=NULL&&i<sentencenum)
         {
-            sscanf(buf,"%*[1-9].%s",sentence_base[i].sentence_example);
-            sentence_base[i].sentence_number=i;
+            sscanf(buf,"%*[0-9].%[^\n]",sentence_base[i].sentence_example);
+            sentence_base[i].sentence_number=i+1;
+            //printf("%s\n",sentence_base[i].sentence_example);
             i++;
         }
     }
@@ -151,9 +152,18 @@ int delWordLineNode(wordsline LinePtr, int n, word *e)
             }
             vol++;
         }
+        ptr_word_a = ptr_word_a->nextword;
+    //(*e).word_info = (ptr_word_a->nextword).word_info;
+        strcpy(e->word_info,ptr_word_a->word_info);
+        strcpy(e->word_meaning,ptr_word_a->word_meaning);
+        e->word_sentences_number = ptr_word_a->word_sentences_number;
+        e->word_type = ptr_word_a->word_type;
+        e->word_rem_times = ptr_word_a->word_rem_times;
+        e->word_extrachar1 = ptr_word_a->word_extrachar1;
+        e->word_extrachar2 = ptr_word_b->word_extrachar2;
+        //e->word_info = ptr_word_a->word_info;
 
-        *e = *(ptr_word_a->nextword);
-        ptr_word_a->nextword = ptr_word_a->nextword->nextword;
+        ptr_word_a = ptr_word_a->nextword;
 
         return OK;
     }
@@ -173,12 +183,13 @@ int emptyLine(wordsline LinePtr)
 
 int chooseWordInBase(wordsline a_to_z[],word portTargetWord[])
 {//³é´Êº¯Êý
-    int vol = 0;
+    int vol = 1;
     int i = rand()%24+1;
+    int num  = rand()%10+1;
     word temp;
-    while(vol < LearnWordNum)
+    while(vol <= LearnWordNum)
     {
-        if(delWordLineNode(a_to_z[i],rand()%10+1,&temp) == OK)
+        if(delWordLineNode(a_to_z[i],num,&temp) == OK )
         {
             portTargetWord[vol] = temp;
             vol++;
