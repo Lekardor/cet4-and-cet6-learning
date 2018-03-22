@@ -19,7 +19,7 @@ int EnWordsline(word e,wordsline wordsline_abc)
     while(q->nextword!=NULL)
     {
         q=q->nextword;
-    }
+    }//to the end of line
     p=(word*)malloc(sizeof(word));
     if(!p)
         exit(ERROR);
@@ -35,8 +35,6 @@ int EnWordsline(word e,wordsline wordsline_abc)
         q->nextword=p;
         p->nextword=NULL;
     }
-    word a = *p;
-    word b = *q;
     return OK;
 }
 
@@ -48,11 +46,12 @@ char* CreateNewRoute(char alpha)
     strcpy(NewRoute+1,".csv");
     return NewRoute;
 }
+
 void CreateWordsLine(wordsline wordsline_alpha,char alpha)
 {
 
     InitWordsline(wordsline_alpha);
-    word a = *wordsline_alpha;
+    //word a = *wordsline_alpha;
     FILE*fp;
     char buf[100];
     word mode;
@@ -62,25 +61,22 @@ void CreateWordsLine(wordsline wordsline_alpha,char alpha)
     {
         while(fgets(buf,101,fp)!=NULL)
         {
-            sscanf(buf,"%[^','],%[^','],%d,%d,%d,%d,%d",mode.word_info,mode.word_meaning,&mode.word_type,&mode.word_sentences_number,&mode.word_rem_times,&mode.word_extrachar1,
+            sscanf(buf,"%[^','],\"%[^\"]\",%d,%d,%d,%d,%d",mode.word_info,mode.word_meaning,&mode.word_type,&mode.word_sentences_number,&mode.word_rem_times,&mode.word_extrachar1,
                    &mode.word_extrachar2);
+            //printf("%s,%s,%d,%d,%d,%d,%d\n",mode.word_info,mode.word_meaning,mode.word_type,mode.word_sentences_number,mode.word_rem_times,mode.word_extrachar1,mode.word_extrachar2);
             EnWordsline(mode,wordsline_alpha);
         }
     }
     fclose(fp);
 }
 
-
-
 void CreateWordBase(wordsline *words_base)
 {
     int i;
     for(i=0;i<26;i++)
     {
-    CreateWordsLine(words_base[i],'A'+i);
-    word a=*(words_base[i]->nextword);
+        CreateWordsLine(words_base[i],'A'+i);
     }
-
 }
 
 void RewriteCSV(wordsline *words_base)
@@ -97,7 +93,7 @@ void RewriteCSV(wordsline *words_base)
             word* ptr=words_base[i];
             while(ptr!=NULL)
             {
-                sprintf(buf,"%s,%s,%d,%d,%d,%d,%d\n",ptr->word_info,ptr->word_meaning,ptr->word_type,ptr->word_sentences_number,ptr->word_rem_times,ptr->word_extrachar1,
+                sprintf(buf,"%s,\"%s\",%d,%d,%d,%d,%d\n",ptr->word_info,ptr->word_meaning,ptr->word_type,ptr->word_sentences_number,ptr->word_rem_times,ptr->word_extrachar1,
                    ptr->word_extrachar2);
                 fprintf(fp,"%s",buf);
                 ptr=ptr->nextword;
@@ -118,10 +114,11 @@ void CreateSentence_base(sentence *sentence_base,int sentencenum)//done
     else
     {
         int i=0;
-        while(fgets(buf,MAX_SENTENCE_LENGTH+1,fp)!=NULL&&i<=sentencenum)
+        while(fgets(buf,MAX_SENTENCE_LENGTH+1,fp)!=NULL&&i<sentencenum)
         {
-            sscanf(buf,"%*[1-9].%s",sentence_base[i].sentence_example);
-            sentence_base[i].sentence_number=i;
+            sscanf(buf,"%*[0-9].%[^\n]",sentence_base[i].sentence_example);
+            sentence_base[i].sentence_number=i+1;
+            //printf("%d%s\n",i+1,sentence_base[i].sentence_example);
             i++;
         }
     }
@@ -129,30 +126,34 @@ void CreateSentence_base(sentence *sentence_base,int sentencenum)//done
 }
 
 int delWordLineNode(wordsline LinePtr, int n, word *e)
-{//删除单链表LinePtr中的第n个元素，并通过e返回其值,若n大于单链表长度，则返回其最后一个值
+{//删除单链表LinePtr中的第n个元素(空的结点不算元素)，并通过e返回其值,若n大于单链表长度，则返回其最后一个值
     wordsline ptr_word_a = LinePtr;
-    wordsline ptr_word_b;
+    //wordsline ptr_word_b;
     int vol = 1;
     if(emptyLine(LinePtr) == 0)
     {
-        while(vol < n)
+        while(vol < n)//
         {
-            if(ptr_word_a->nextword != NULL)
+            if(ptr_word_a->nextword->nextword != NULL)
             {
-                ptr_word_b = ptr_word_a;
+                //ptr_word_b = ptr_word_a;
+
                 ptr_word_a = ptr_word_a->nextword;//a走
             }
             else
             {
-                *e = *ptr_word_a;
-                ptr_word_b->nextword = NULL;
+                *e = *ptr_word_a->nextword;
+               // printf("%s          \\  %s\n",(*e).word_info,(*e).word_meaning);
+                ptr_word_a->nextword = NULL;
 
                 return OK;
             }
+
             vol++;
         }
 
-        *e = *(ptr_word_a->nextword);
+        *e = *ptr_word_a->nextword;
+       // printf("%s            %s\n",(*e).word_info,(*e).word_meaning);
         ptr_word_a->nextword = ptr_word_a->nextword->nextword;
 
         return OK;
@@ -173,18 +174,30 @@ int emptyLine(wordsline LinePtr)
 
 int chooseWordInBase(wordsline a_to_z[],word portTargetWord[])
 {//抽词函数
-    int vol = 0;
-    int i = rand()%24+1;
+    srand(time(0));
+
+    int vol = 1;
+    int i = rand()%25+1;
+    int num;
     word temp;
-    while(vol < LearnWordNum)
+    while(vol <= LearnWordNum)
     {
-        if(delWordLineNode(a_to_z[i],rand()%10+1,&temp) == OK)
+        num  = rand()%10+1;
+        if(delWordLineNode(a_to_z[i],num,&temp) == OK )
         {
             portTargetWord[vol] = temp;
             vol++;
         }
+
         i = i % 25;
         i++;
+    }
+
+
+    //bianli(a_to_z);
+    for(vol = 1;vol <= LearnWordNum;vol++)
+    {
+       // printf("%s            %s\n",portTargetWord[vol].word_info,portTargetWord[vol].word_meaning);
     }
 
     return OK;

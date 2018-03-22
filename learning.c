@@ -32,29 +32,6 @@ char get_first(void);//取首字母
 char* getSentenceByNumber(int sentenceNum);//根据例句序列号取到句子
 void RemWord(word* tempWord,wordsline*base);*/
 
-//int main()
-//{
-//    int vol;
-//    //************
-//    for(vol = 1; vol <= 10; vol++)
-//    {
-//        strcpy(portTargetWord[vol].word_info, "absn");
-//        strcpy(portTargetWord[vol].word_meaning, "开心的");
-//        strcpy(portTargetWord[vol].word_type, "222");
-//        portTargetWord[vol].word_sentences_number = vol;
-//    }
-//    for(vol = 1; vol <= 10; vol++)
-//    {
-//        strcpy(sentence_base[vol].sentence_example, "152");
-//        sentence_base[vol].sentence_number = vol;
-//    }
-//    //************测试数据*************
-//    printf("Welcome to CET4andCET6 learning program!\n");
-//    LearnWordProc();
-//
-//    return OK;
-//}
-
 int InitQueue(LinkQueue *Q)
 {   //构建一个空队列Q
     (*Q).front = (*Q).rear = (QueuePtr)malloc(sizeof(QNode));
@@ -110,7 +87,7 @@ int LearnWordProc(sentence* sentence_base,wordsline* word_base, word portTargetW
     }
 
     //队空后，完成本次学习任务
-    printf("finish！");
+    printf("finish！\n");
     //重新写入csv，更新日志csv
 
     return OK;
@@ -135,7 +112,7 @@ int wordByTurns(LinkQueue *unRemQueue,sentence* sentence_base,wordsline* word_ba
     DeQueue(unRemQueue, tempWord);
 
     printf("%s\n",(*tempWord).word_info);
-    printf("know？ enter Y or N");
+    printf("Know this word？\nPlease enter Y or N\n");
 
     YesOrNo = get_first();
     while (!(YesOrNo == 'Y' || YesOrNo == 'N'))
@@ -154,7 +131,7 @@ int wordByTurns(LinkQueue *unRemQueue,sentence* sentence_base,wordsline* word_ba
     }
 
     showWordInDetail(*tempWord,sentence_base);
-    printf("剩余单词个数：%d\n",(*unRemQueue).LengthQueue);
+    printf("剩余单词个数：%d\n\n\n",(*unRemQueue).LengthQueue);
 
     free(tempWord);
 
@@ -196,7 +173,7 @@ int showWordInDetail(word beShowedWord,sentence* sentence_base)
 {//展示单词详细信息
     printf("词语详细信息:\n");
     printf("%s\n词意：%s\n词性：%s\n",beShowedWord.word_info,beShowedWord.word_meaning,num_to_wordtype(beShowedWord.word_type));
-    printf("例句： %s\n",getSentenceByNumber(beShowedWord.word_sentences_number,sentence_base));
+    printf("例句： %s\n\n",getSentenceByNumber(beShowedWord.word_sentences_number,sentence_base));
 
     return OK;
 }
@@ -224,6 +201,7 @@ char* getSentenceByNumber(int sentenceNum,sentence* sentence_base)
         }
     }
 
+
     return NULL;
 }
 
@@ -232,7 +210,7 @@ void ReInsert(word*e,wordsline* words_base)
     int i;
     for(i=0;i<26;i++)
     {
-        if(e->word_info[0]==words_base[i]->word_info[0])
+        if(e->word_info[0]==words_base[i]->nextword->word_info[0])
         {
             word*p;
             p=words_base[i];

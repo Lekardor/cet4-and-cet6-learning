@@ -20,25 +20,25 @@ typedef struct BSTNode
     struct BSTNode *lchild,*rchild;//左右孩子指针
 }BSTNode, *BSTree;*/
 
-BSTree R_Rotate(BSTree p)  //右旋转
+void R_Rotate(BSTree p)  //右旋转
 {
     BSTree lc;
     lc=p->lchild;
     p->lchild=lc->rchild;
     lc->rchild=p;
-    return lc;
+    p=lc;
 }
 
-BSTree L_Rotate(BSTree p)  //左旋转
+void L_Rotate(BSTree p)  //左旋转
 {
     BSTree rc;
     rc=p->rchild;
     p->rchild=rc->lchild;
     rc->lchild=p;
-    return rc;
+    p=rc;
 }
 
-BSTree LeftBalance(BSTree t)//左平衡
+void LeftBalance(BSTree t)//左平衡
 {
     BSTree lc;
     BSTree rd;
@@ -47,7 +47,7 @@ BSTree LeftBalance(BSTree t)//左平衡
     {
     case LH:
         t->bf=lc->bf=EH;
-        return R_Rotate(t);
+        R_Rotate(t);
         break;
     case RH:
         rd=lc->rchild;
@@ -66,13 +66,13 @@ BSTree LeftBalance(BSTree t)//左平衡
             break;
         }
         rd->bf =EH;
-        t->lchild=L_Rotate(t->lchild);
-        return R_Rotate(t);
+        L_Rotate(t->lchild);
+        R_Rotate(t);
         break;
     }
 }
 
-BSTree RightBalance(BSTree t)//右平衡
+void RightBalance(BSTree t)//右平衡
 {
     BSTree rc;
     BSTree ld;
@@ -81,7 +81,7 @@ BSTree RightBalance(BSTree t)//右平衡
     {
     case RH:
         t->bf=rc->bf=EH;
-        return L_Rotate(t);
+        L_Rotate(t);
         break;
     case LH:
         ld=rc->lchild;
@@ -100,8 +100,8 @@ BSTree RightBalance(BSTree t)//右平衡
             break;
         }
         ld->bf =EH;
-        t->rchild=R_Rotate(t->rchild);
-        return L_Rotate(t);
+        R_Rotate(t->rchild);
+        L_Rotate(t);
         break;
     }
 }
@@ -109,7 +109,7 @@ BSTree RightBalance(BSTree t)//右平衡
 int wordcomparing(char* a,char* b)//比较两个单词大小
 {
     int i=0;
-    while('a'<=a[i]&&a[i]<='z'&&'a'<=b[i]&&b[i]<='z')//依次比较各个字母大小
+    while(a[i]!='\0'&&b[i]!='\0')//依次比较各个字母大小
     {
         if(a[i]>b[i])
             {
@@ -124,70 +124,58 @@ int wordcomparing(char* a,char* b)//比较两个单词大小
                 i++;
             }
     }
-
-    if('a'<=a[i]&&a[i]<='z')
+    if(strlen(a)>strlen(b))
     {
         return morethan;
     }
-    if('a'<=b[i]&&b[i]<='z')
-        return lessthan;
-    else
-        return equal;
-
-
-}
-
-BSTree InsertAVL(BSTree t,word a, Boolean *taller,Boolean *same)//平衡二叉树的插入操作
-{
-    //word b;
-    //word c;
-    //int e;
-    //int f;
-    //e=t->flag;
-    BSTree lc;
-    BSTree rc;
-    if(t->flag==0)//插入新节点
+    if(strlen(a)<strlen(b))
     {
-        t->wordnord=a;
-        t->lchild=(BSTree)malloc(sizeof(BSTNode));
-        t->lchild->flag=0;
-        t->rchild=(BSTree)malloc(sizeof(BSTNode));
-        t->rchild->flag=0;
-        t->bf=EH;
-        *taller=true;
-        t->flag=1;
+        return lessthan;
     }
     else
     {
-        if(wordcomparing(t->wordnord.word_info,a.word_info)==equal)
+        return equal;
+    }
+}
+
+int InsertAVL(BSTree* t,word a, Boolean *taller)//平衡二叉树的插入操作
+{
+    //word b;
+    if(!*t)//插入新节点
+    {
+        *t=(BSTree)malloc(sizeof(BSTNode));
+        (*t)->wordnord=a;
+        (*t)->lchild=(*t)->rchild=NULL;
+        (*t)->bf=EH;
+        *taller=true;
+    }
+    else
+    {
+        if(wordcomparing((*t)->wordnord.word_info,a.word_info)==equal)
         {
             *taller=false;
-            *same=true;
-            return t;
-
+            return 0;
         }
-        if(wordcomparing(t->wordnord.word_info,a.word_info)==morethan)
+        if(wordcomparing((*t)->wordnord.word_info,a.word_info)==morethan)
         {
-            lc=InsertAVL(t->lchild,a,taller,same);
-            if(*same==true)
+            if(!InsertAVL(&((*t)->lchild),a,taller))
             {
-                return t;
+                return 0;
             }
-            t->lchild=lc;
             if(*taller)
             {
-                switch(t->bf)
+                switch((*t)->bf)
                 {
                 case LH:
-                  t=LeftBalance(t);
+                    LeftBalance((*t));
                     *taller=false;
                     break;
                 case EH:
-                    t->bf=LH;
+                    (*t)->bf=LH;
                     *taller=true;
                     break;
                 case RH:
-                    t->bf=EH;
+                    (*t)->bf=EH;
                     *taller=false;
                     break;
                 }
@@ -196,60 +184,47 @@ BSTree InsertAVL(BSTree t,word a, Boolean *taller,Boolean *same)//平衡二叉树的插
         }
         else
         {
-            rc=InsertAVL(t->rchild,a,taller,same);
-           if(*same==true)
+           if(!InsertAVL(&((*t)->rchild),a,taller))
            {
-               return t;
+               return 0;
            }
-           t->rchild=rc;
            if(*taller)
             {
-                switch(t->bf)
+                switch((*t)->bf)
                 {
                 case LH:
-                    t->bf=EH;
+                    (*t)->bf=EH;
                     *taller=false;
                     break;
                 case EH:
-                    t->bf=RH;
+                    (*t)->bf=RH;
                     *taller=true;
                     break;
                 case RH:
-                    t=RightBalance(t);
+                    RightBalance((*t));
                     *taller=false;
                     break;
                 }
             }
         }
     }
-    //b=t->rchild->wordnord;
-    //c=t->lchild->wordnord;
-    //e=t->rchild->flag;
-    //f=t->lchild->flag;
-    return t;
+    return 1;
 }
 
 BSTree buildBSTree(wordsline line)//一个AVL树建立
 {
-    //int b;
     BSTree t;
-    t=(BSTree)malloc(sizeof(BSTNode));
-    t->flag=0;
+    t=NULL;
     wordsline copy;
     Boolean *taller=(Boolean*)malloc(sizeof(Boolean));
-    Boolean *same=(Boolean*)malloc(sizeof(Boolean));
-    *same=false;
     *taller=1;
     copy = line;
     //word a;
-    //word c;
     do
     {
         copy=copy->nextword;
-        //c=*copy;
-        t=InsertAVL(t,*copy,taller,same);
-        //b=t->flag;
-        //a=t->wordnord;
+        InsertAVL(&t,*copy,taller);
+        //a=*copy;
     }while(copy->nextword!=NULL);
    // word a=t->wordnord;
     free(taller);
@@ -270,24 +245,18 @@ BSTree* buildallTree(wordsline wordbase[],int n)
 }
 BSTree wordsearch(BSTree t,char* a)//单词搜索
 {
-    //word b;
-    if(t)
+    if(wordcomparing((t->wordnord).word_info,a)==equal)
     {
-        if(wordcomparing((t->wordnord).word_info,a)==equal)
-        {
-            //word b=t->wordnord;
-            return t;
-        }
-        if(wordcomparing(t->wordnord.word_info,a)==morethan)
-        {
-            return wordsearch(t->lchild,a);
-        }
-        else
-        {
-            return wordsearch(t->rchild,a);
-        }
+        return t;
     }
-    return NULL;
+    if(wordcomparing((t->wordnord).word_info,a)==morethan)
+    {
+        return wordsearch(t->lchild,a);
+    }
+    else
+    {
+        return wordsearch(t->rchild,a);
+    }
 }
 
 BSTree choosetree(char* a,BSTree alltree[],int n)
@@ -297,7 +266,7 @@ BSTree choosetree(char* a,BSTree alltree[],int n)
     BSTree result = (BSTree)malloc(sizeof(BSTNode));
     for(i=0;i<n;i++)
     {
-        if(a[0]=='a'+i)
+        if(a[0]==(alltree[i]->wordnord).word_info[0])
         {
             result=wordsearch(alltree[i],a);
             return result;

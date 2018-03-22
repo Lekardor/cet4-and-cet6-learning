@@ -4,14 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 #define OK 1
 #define ERROR 0
-#define OVERFLOW -1
+#define OVERFLOW -1216.Bernstein Xeroxed copies of notes from reporters at the scene.
 #define MAXMIUM 217
 
 #define MAX_SENTENCE_LENGTH 200
-#define MAX_SENTENCE 217
+#define MAX_SENTENCE 216
 #define LearnWordNum 10
 //****************************
 #define morethan 1
@@ -46,7 +47,7 @@ typedef struct word
 typedef struct sentence
 {
     char  sentence_example[100];//例句示例
-    int   sentence_number;//例句序号
+    int   sentence_number;//例216.Bernstein Xeroxed copies of notes from reporters at the scene. 句序号
 }sentence;
 
 
@@ -100,15 +101,14 @@ typedef struct BSTNode
     word wordnord;
     int bf;   //节点的平衡因子
     struct BSTNode *lchild,*rchild;//左右孩子指针
-    int flag;
 }BSTNode, *BSTree;
 
-BSTree R_Rotate(BSTree p);  //右旋转
-BSTree L_Rotate(BSTree p);  //左旋转
-BSTree LeftBalance(BSTree t);//左平衡
-BSTree RightBalance(BSTree t);//右平衡
+void R_Rotate(BSTree p);  //右旋转
+void L_Rotate(BSTree p);  //左旋转
+void LeftBalance(BSTree t);//左平衡
+void RightBalance(BSTree t);//右平衡
 int wordcomparing(char* a,char* b);//比较两个单词大小
-BSTree InsertAVL(BSTree t,word a, Boolean *taller,Boolean *same);//平衡二叉树的插入操作
+int InsertAVL(BSTree* t,word a, Boolean *taller);//平衡二叉树的插入操作
 BSTree wordsearch(BSTree t,char* a);//单词搜索
 BSTree buildBSTree(wordsline line);
 BSTree* buildallTree(wordsline wordbase[],int n);
